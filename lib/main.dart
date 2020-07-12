@@ -1,117 +1,314 @@
+import 'package:blessingbookapp/BlessingSectionHeader.dart';
+import 'package:blessingbookapp/FestivitiesBlessing.dart';
+import 'package:blessingbookapp/FoodBlessing.dart';
+import 'package:blessingbookapp/MiscellaneousBlessing.dart';
+import 'package:blessingbookapp/ShabbatBlesing.dart';
+import 'package:blessingbookapp/localization/App_Localization.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart';
+import 'Blessing.dart';
+import 'FileProvider.dart';
+import 'BlessingSectionHeader.dart';
+import 'localization/localization_constants.dart';
+import 'package:flutter/services.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(BlessingGridView());
 }
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+class BlessingGridView extends StatefulWidget {
+  @override
+  _BlessingGridViewState createState() => _BlessingGridViewState();
+}
+
+class _BlessingGridViewState extends State<BlessingGridView> {
+  // Inicializamos la clase 'FileProvider'
+  var fileProvider = FileProvider();
+  String _deviceLocale;
+  DateTime _dateTime = new DateTime.now();
+  String _date = DateFormat.yMMMd().format(DateTime.now());
+
+  // Inicializamos un arreglo con todos los blessings que queremos mostrar.
+  // Idealmente, este arreglo se cambiaria por otra clase que nos provea la
+  // estructura de la vista, es decir, el número de secciones y la cantidad de
+  // elementos por sección.
+
+  // se agrego nombre para el AppBar de la lectura del PDF
+  var blessingsPDFs = [
+    Blessing('Blessing_of_Children', "B_PDF_Children",
+        'assets/fondo_bendiciones.png', "B_Children"),
+    Blessing("Affixing_a_Mezuzah", "B_PDF_Mezuzah",
+        'assets/fondo_bendiciones.png', 'B_Mezuzah'),
+    Blessing("Blessings_for_Travelers", "B_PDF_Travelers",
+        'assets/fondo_bendiciones.png', 'B_Travel'),
+  ];
+
+  var blessingsFood = [
+    FoodBlessing("Blessing_When_Washing_Hands", "B_PDF_Washing_Hand",
+        'assets/fondo_bendiciones.png', "Before_Eating"),
+    FoodBlessing(
+        "Wine", "B_PDF_Wine", 'assets/fondo_bendiciones.png', 'B_Wine'),
+    FoodBlessing("Blessing_When_Eating_Bread", "B_PDF_Bread",
+        'assets/fondo_bendiciones.png', 'B_Bread'),
+    FoodBlessing("Blessing_Over_Grains", "B_PDF_Grains",
+        'assets/fondo_bendiciones.png', 'Grains'),
+    FoodBlessing("Blessing_Over_Vegetables", "B_PDF_Vegetables",
+        'assets/fondo_bendiciones.png', 'Vegetables'),
+    FoodBlessing("Blessing_When_Eating_Fruits", "B_PDF_Fruits",
+        'assets/fondo_bendiciones.png', 'Fruits'),
+    FoodBlessing("All_Other_Food", "B_PDF_All_Other_Food",
+        'assets/fondo_bendiciones.png', 'B_All_Other_Food'),
+    FoodBlessing("Blessing_After_Meal", "B_PDF_After_Meal",
+        'assets/fondo_bendiciones.png', 'Birkat_Hamazon'),
+    FoodBlessing("Making_Challa", "B_PDF_Challa",
+        'assets/fondo_bendiciones.png', 'Challa'),
+  ];
+
+  var blessingsShabbat = [
+    ShabbatBlessing(
+        "Blessing_Of_The_Shabbath_Candles",
+        "B_PDF_Shabbath_Blessing",
+        'assets/fondo_bendiciones.png',
+        'The_Candles'),
+    ShabbatBlessing("Kidush_Shabbath", "B_PDF_Kidush_Shabbath",
+        'assets/fondo_bendiciones.png', 'Kidush'),
+    ShabbatBlessing("Blessing_Havdalah", "B_PDF_Havdalah",
+        'assets/fondo_bendiciones.png', 'Havdalah'),
+  ];
+
+  var blessingsFestivites = [
+    FestivitiesBlessing("Blessing_Over_Hanukkah_Candles",
+        "B_PDF_Hanukkah_Candles", 'assets/fondo_bendiciones.png', 'Hanukka'),
+    FestivitiesBlessing(
+        "Blessing_Over_Festivities_Candles",
+        "B_PDF_Over_Festivities_Candles",
+        'assets/fondo_bendiciones.png',
+        'Yom_Tov'),
+    FestivitiesBlessing("Blessings_For_Sukkot", "B_PDF_Sukkot",
+        'assets/fondo_bendiciones.png', 'Sukkot'),
+    FestivitiesBlessing("Kidush_For_Shalosh_Regalim", "B_PDF_Shalosh_Regalim",
+        'assets/fondo_bendiciones.png', 'Yom_Tov'),
+    FestivitiesBlessing("Kidush_For_Rosh_Hashanah", "B_PDF_Kidush_Rosh_Hashana",
+        'assets/fondo_bendiciones.png', 'Rosh_Hashanah'),
+    FestivitiesBlessing(
+        "Blessing_Over_Yom_Kippur_Candles",
+        "B_PDF_Yom_Kippur_Candles",
+        'assets/fondo_bendiciones.png',
+        'Yom_Kipur'),
+  ];
+
+  var blessingsMiscellaneous = [
+    MiscellaneousBlessing("Blessing_When_Hear_Thunder", "B_PDF_Thunder",
+        'assets/fondo_bendiciones.png', 'Nature'),
+    MiscellaneousBlessing("Blessing_When_See_Lightning", "B_PDF_Lightning",
+        'assets/fondo_bendiciones.png', 'Nature'),
+    MiscellaneousBlessing("Blessing_When_see_a_Rainbow", "B_PDF_Rainbow",
+        'assets/fondo_bendiciones.png', 'Nature'),
+    MiscellaneousBlessing("Blessing_When_Hear_Good_News", "B_PDF_Good_News",
+        'assets/fondo_bendiciones.png', 'Personnel'),
+    MiscellaneousBlessing("Blessing_When_Hear_Bad_News", "B_PDF_Bad_News",
+        'assets/fondo_bendiciones.png', 'Personnel'),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-        // This makes the visual density adapt to the platform that you run
-        // the app on. For desktop platforms, the controls will be smaller and
-        // closer together (more dense) than on mobile platforms.
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+        supportedLocales: [
+          Locale('en', 'US'),
+          Locale('es', 'ES'),
+        ],
+        localizationsDelegates: [
+          AppLocalization.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        localeResolutionCallback: (deviceLocale, supportedLocales) {
+          _deviceLocale = deviceLocale.toString();
+          if ('es' == deviceLocale.languageCode) {
+            return deviceLocale;
+          }
+
+          return supportedLocales.first;
+        },
+        home: Builder(
+          builder: (context) => Scaffold(
+            backgroundColor: Colors.amber,
+            body: SafeArea(
+              child: CustomScrollView(
+                slivers: <Widget>[
+                  SliverAppBar(
+                    title: Text(
+                      '      ' +
+                          getTranslated(context, 'Book_Of_Blessings') +
+                          '                ' +
+                          DateFormat.yMMMd(_deviceLocale)
+                              .format(DateTime.now()) +
+                          '                ' +
+                          DateFormat.yMMMd(_deviceLocale)
+                              .format(DateTime.now()),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      style: TextStyle(
+                        color: Colors.indigo,
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    centerTitle: true,
+                    pinned: true,
+                    backgroundColor: Colors.amber,
+                    expandedHeight: 120,
+                    flexibleSpace: FlexibleSpaceBar(
+                        background: Image.asset(
+                      'assets/maguendavidyellow.png',
+                      fit: BoxFit.fitHeight,
+                    )),
+                  ),
+
+//   este es el encabezado de la primera seccion  **************************
+                  BlessingSectionHeader(
+                      Colors.amber[200], getTranslated(context, 'Family')),
+
+// lista de bendiciones de la primera seccion ******************************
+                  SliverGrid.count(
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    children: BlessingsFiles(context),
+                  ),
+
+//   este es el encabezado de la segunda  seccion  **************************
+                  BlessingSectionHeader(
+                      Colors.amber[200], getTranslated(context, 'Food')),
+
+// lista de bendiciones de la segunda seccion ******************************
+                  SliverGrid.count(
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    children: BlessingsFood(context),
+                  ),
+//   este es el encabezado de la tercera  seccion  **************************
+                  BlessingSectionHeader(
+                      Colors.amber[200], getTranslated(context, 'Sabbath')),
+
+// lista de bendiciones de la segunda seccion ******************************
+                  SliverGrid.count(
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    children: BlessingsShabbat(context),
+                  ),
+//   este es el encabezado de la cuarta  seccion  **************************
+                  BlessingSectionHeader(
+                      Colors.amber[200], getTranslated(context, 'Festivities')),
+
+// lista de bendiciones de la quinta seccion ******************************
+                  SliverGrid.count(
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    children: BlessingsFestivities(context),
+                  ),
+//   este es el encabezado de la quinta  seccion  **************************
+                  BlessingSectionHeader(Colors.amber[200],
+                      getTranslated(context, 'Miscellaneous')),
+
+// lista de bendiciones de la sexta seccion ******************************
+                  SliverGrid.count(
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    children: BlessingsMiscellaneous(context),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ));
   }
-}
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+// TODO la idea es crear un metodo por seccion y carge el grid con sus contenido
+  List<Widget> BlessingsFiles(BuildContext context) {
+    return List.generate(blessingsPDFs.length, (index) {
+      return cardView(context, index);
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
+  List<Widget> BlessingsFood(BuildContext context) {
+    return List.generate(blessingsFood.length, (index) {
+      return cardViewF(context, index);
+    });
+  }
+
+  List<Widget> BlessingsShabbat(BuildContext context) {
+    return List.generate(blessingsShabbat.length, (index) {
+      return cardViewS(context, index);
+    });
+  }
+
+  List<Widget> BlessingsFestivities(BuildContext context) {
+    return List.generate(blessingsFestivites.length, (index) {
+      return cardViewFes(context, index);
+    });
+  }
+
+  List<Widget> BlessingsMiscellaneous(BuildContext context) {
+    return List.generate(blessingsMiscellaneous.length, (index) {
+      return cardViewMis(context, index);
+    });
+  }
+
+  // Este metodo crea el 'CardView' en base a la información del objeto
+  // 'Blessing' que creamos en la lista. Este objeto se consigue en base
+  // al indice que nos pasa el metodo al crear el GridCount.
+  // Para mas información: https://flutter.dev/docs/cookbook/lists/grid-lists
+  Widget cardView(BuildContext context, int index) {
+    // Este es el rezo y en el metodode abajo vamos a utilizar la información
+    // para customizar el 'CardView'.
+
+    var blessing = blessingsPDFs[index];
+
+    return CardLoad(fileProvider: fileProvider, blessing: blessing);
+  }
+
+  Widget cardViewF(BuildContext context, int index) {
+    // Este es el rezo y en el metodode abajo vamos a utilizar la información
+    // para customizar el 'CardView'.
+
+    var blessingF = blessingsFood[index];
+
+    return CardLoadF(fileProvider: fileProvider, blessingF: blessingF);
+  }
+
+  Widget cardViewS(BuildContext context, int index) {
+    // Este es el rezo y en el metodode abajo vamos a utilizar la información
+    // para customizar el 'CardView'.
+
+    var blessingS = blessingsShabbat[index];
+
+    return CardLoadS(fileProvider: fileProvider, blessingS: blessingS);
+  }
+
+  Widget cardViewFes(BuildContext context, int index) {
+    // Este es el rezo y en el metodode abajo vamos a utilizar la información
+    // para customizar el 'CardView'.
+
+    var blessibgFe = blessingsFestivites[index];
+
+    return CardLoadFes(fileProvider: fileProvider, blessibgFe: blessibgFe);
+  }
+
+  Widget cardViewMis(BuildContext context, int index) {
+    // Este es el rezo y en el metodode abajo vamos a utilizar la información
+    // para customizar el 'CardView'.
+
+    var blessibgMis = blessingsMiscellaneous[index];
+
+    return CardLoadM(fileProvider: fileProvider, blessibgMis: blessibgMis);
   }
 }
